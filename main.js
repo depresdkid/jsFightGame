@@ -46,6 +46,10 @@ class Sprite {
       this.velocity.y += gravity
       this.isGround = false
     };
+
+    this.move();
+
+
   }
 
   move() {
@@ -133,8 +137,16 @@ function update() {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   player.update();
   enemy.update();
-  player.move();
 
+}
+
+function checkCollision(player, enemy) {
+  if (player.attackBox.position.x + player.width + player.attackBox.width >= enemy.position.x &&
+    player.attackBox.position.x + player.width <= enemy.position.x + enemy.width &&
+    player.attackBox.position.y + player.attackBox.height >= enemy.position.y &&
+    player.attackBox.position.y <= enemy.position.y + enemy.height) {
+    console.log('Attak');
+  }
 }
 
 
