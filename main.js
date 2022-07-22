@@ -10,7 +10,7 @@ const gravity = 0.2;
 
 class Sprite {
 
-  constructor({ position, velocity, color }) {
+  constructor({ position, velocity, color, offset }) {
     this.position = position;
     this.velocity = velocity;
     this.speed = 10;
@@ -18,11 +18,17 @@ class Sprite {
     this.width = 50;
     this.isGround = true;
     this.attackBox = {
-      position: this.position,
+      position: {
+        x: this.position.x,
+        y: this.position.y
+      },
+      offset,
       width: 100,
       height: 50
     }
     this.color = color;
+    this.isAttacking = false
+    this.attackSpeed = 100
   }
 
   draw() {
@@ -30,13 +36,18 @@ class Sprite {
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
 
     //attack
+
     ctx.fillStyle = 'green'
     ctx.fillRect(this.attackBox.position.x + this.width, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+
 
   }
 
   update() {
     this.draw()
+    this.attackBox.position.x = this.position.x - this.attackBox.offset.x
+    this.attackBox.position.y = this.position.y
+
     this.position.y += this.velocity.y
     this.position.x += this.velocity.x
     if (this.position.y + this.height + this.velocity.y >= canvas.height) {
@@ -61,6 +72,15 @@ class Sprite {
       player.velocity.y = -10;
     }
   }
+
+  attack() {
+    this.isAttacking = true
+    console.log(1);
+    setTimeout(() => {
+      this.isAttacking = false
+    }, this.attackSpeed)
+  }
+
 }
 
 class Input {
@@ -102,7 +122,11 @@ const player = new Sprite({
     x: 0,
     y: 10
   },
-  color: 'blue'
+  color: 'blue',
+  offset: {
+    x: 0,
+    y: 0
+  }
 });
 
 const enemy = new Sprite({
@@ -114,7 +138,11 @@ const enemy = new Sprite({
     x: 0,
     y: 10
   },
-  color: 'red'
+  color: 'red',
+  offset: {
+    x: 150,
+    y: 0
+  }
 });
 
 player.draw();
@@ -124,6 +152,10 @@ window.addEventListener('keydown', (event) => {
   input.updateKeys(event)
   if (event.code === 'KeyW') {
     player.jump();
+  }
+
+  if (event.code === 'Space') {
+    player.attack();
   }
 })
 
@@ -137,18 +169,22 @@ function update() {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   player.update();
   enemy.update();
-
+  CheckAttack(player, enemy)
 }
 
 function checkCollision(player, enemy) {
-  if (player.attackBox.position.x + player.width + player.attackBox.width >= enemy.position.x &&
+  return (player.attackBox.position.x + player.width + player.attackBox.width >= enemy.position.x &&
     player.attackBox.position.x + player.width <= enemy.position.x + enemy.width &&
     player.attackBox.position.y + player.attackBox.height >= enemy.position.y &&
-    player.attackBox.position.y <= enemy.position.y + enemy.height) {
-    console.log('Attak');
-  }
+    player.attackBox.position.y <= enemy.position.y + enemy.height)
 }
 
+function CheckAttack() {
+  if (checkCollision(player, enemy) && player.isAttacking) {
+    player.isAttacking = false
+    console.log('Attack');
+  }
+}
 
 (function animate() {
   update();
