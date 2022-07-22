@@ -15,6 +15,7 @@ class Sprite {
     this.velocity = velocity;
     this.speed = 10;
     this.height = 150;
+    this.isGround = true;
   }
 
   draw() {
@@ -27,14 +28,22 @@ class Sprite {
     this.position.y += this.velocity.y
     this.position.x += this.velocity.x
     if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-      this.velocity.y = 0;
-    } else this.velocity.y += gravity;
+      this.velocity.y = 0
+      this.isGround = true
+    } else {
+      this.velocity.y += gravity
+      this.isGround = false
+    };
   }
 
   move() {
-
     player.velocity.x = input.inputGetAxis() * 2
+  }
 
+  jump() {
+    if (this.isGround) {
+      player.velocity.y = -10;
+    }
   }
 }
 
@@ -44,13 +53,13 @@ class Input {
   }
 
   updateKeys(key) {
-    if (/^Key[AD]/.test(key.code)) {
+    if (/^Key[WAD]/.test(key.code)) {
       key.preventDefault();
       this.keys[key.code] = key.type === "keydown";
     }
   }
 
-  inputGetAxis() {
+  inputGetAxis(orentation) {
     //Horosontal
     if (this.keys.KeyD && !this.keys.KeyA) {
       return 1
@@ -59,8 +68,11 @@ class Input {
       return -1
     }
 
+
     return 0
   }
+
+
 }
 
 const input = new Input()
@@ -83,7 +95,7 @@ player.draw();
 window.addEventListener('keydown', (event) => {
   input.updateKeys(event)
   if (event.code === 'KeyW') {
-    player.velocity.y = -5;
+    player.jump();
   }
 })
 
