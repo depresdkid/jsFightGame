@@ -101,6 +101,17 @@ const player = new Sprite({
   color: 'blue'
 });
 
+const enemy = new Sprite({
+  position: {
+    x: 500,
+    y: 0
+  },
+  velocity: {
+    x: 0,
+    y: 10
+  },
+  color: 'red'
+});
 
 player.draw();
 
@@ -121,6 +132,7 @@ function update() {
   ctx.fillStyle = 'black'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   player.update();
+  enemy.update();
   player.move();
 
 }
