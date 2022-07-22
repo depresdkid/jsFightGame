@@ -10,17 +10,29 @@ const gravity = 0.2;
 
 class Sprite {
 
-  constructor({ position, velocity }) {
+  constructor({ position, velocity, color }) {
     this.position = position;
     this.velocity = velocity;
     this.speed = 10;
     this.height = 150;
+    this.width = 50;
     this.isGround = true;
+    this.attackBox = {
+      position: this.position,
+      width: 100,
+      height: 50
+    }
+    this.color = color;
   }
 
   draw() {
-    ctx.fillStyle = 'red';
-    ctx.fillRect(this.position.x, this.position.y, 50, this.height);
+    ctx.fillStyle = this.color
+    ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
+
+    //attack
+    ctx.fillStyle = 'green'
+    ctx.fillRect(this.attackBox.position.x + this.width, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+
   }
 
   update() {
@@ -85,7 +97,8 @@ const player = new Sprite({
   velocity: {
     x: 0,
     y: 10
-  }
+  },
+  color: 'blue'
 });
 
 
@@ -109,6 +122,7 @@ function update() {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
   player.update();
   player.move();
+
 }
 
 
