@@ -8,6 +8,17 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.2;
 
+let timer = 20
+function decreaseTimer() {
+  setTimeout(decreaseTimer, 1000)
+  if (timer > 0) {
+    timer--
+    document.querySelector('#timer').innerHTML = timer
+  }
+}
+
+decreaseTimer()
+
 class Sprite {
 
   constructor({ position, velocity, color, offset }) {
@@ -18,15 +29,15 @@ class Sprite {
     this.width = 50;
     this.isGround = true;
     this.health = 100,
-    this.attackBox = {
-      position: {
-        x: this.position.x,
-        y: this.position.y
-      },
-      offset,
-      width: 100,
-      height: 50
-    }
+      this.attackBox = {
+        position: {
+          x: this.position.x,
+          y: this.position.y
+        },
+        offset,
+        width: 100,
+        height: 50
+      }
     this.color = color;
     this.isAttacking = false
     this.attackSpeed = 100
