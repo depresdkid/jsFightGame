@@ -37,7 +37,12 @@
     opacity: .2;
 }
 
-.timer{
+.timer {
     color: #fff;
     font-size: 24px;
+}
+
+.health-bar.enemy {
+    display: flex;
+    justify-content: flex-end;
 }

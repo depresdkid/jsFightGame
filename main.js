@@ -17,6 +17,7 @@ class Sprite {
     this.height = 150;
     this.width = 50;
     this.isGround = true;
+    this.health = 100,
     this.attackBox = {
       position: {
         x: this.position.x,
@@ -75,7 +76,6 @@ class Sprite {
 
   attack() {
     this.isAttacking = true
-    console.log(1);
     setTimeout(() => {
       this.isAttacking = false
     }, this.attackSpeed)
@@ -182,7 +182,8 @@ function checkCollision(player, enemy) {
 function CheckAttack() {
   if (checkCollision(player, enemy) && player.isAttacking) {
     player.isAttacking = false
-    console.log('Attack');
+    enemy.health -= 20
+    document.querySelector('#enemyHealth').style.width = enemy.health + '%'
   }
 }
 
