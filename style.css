@@ -20,7 +20,7 @@
 }
 
 .health-bar__fill {
-    width: 80%;
+    width: 100%;
     background: rgb(255, 215, 37);
     height: 100%;
 }
