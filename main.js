@@ -8,133 +8,20 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const gravity = 0.2;
 
+const background = new Sprite({
+  position: {
+    x: 0,
+    y: 0
+  },
+  imageSrc: './images/background.png'
+})
+
 let timer = 20
-function decreaseTimer() {
-  setTimeout(decreaseTimer, 1000)
-  if (timer > 0) {
-    timer--
-    document.querySelector('#timer').innerHTML = timer
-  }
-}
-
-decreaseTimer()
-
-class Sprite {
-
-  constructor({ position, velocity, color, offset, type }) {
-    this.position = position;
-    this.velocity = velocity;
-    this.speed = 10;
-    this.height = 150;
-    this.width = 50;
-    this.isGround = true;
-    this.health = 100,
-      this.attackBox = {
-        position: {
-          x: this.position.x,
-          y: this.position.y
-        },
-        offset,
-        width: 100,
-        height: 50
-      }
-    this.color = color;
-    this.isAttacking = false
-    this.attackSpeed = 100
-    this.type = type
-  }
-
-  draw() {
-    ctx.fillStyle = this.color
-    ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
-
-    //attack
-    if (this.isAttacking) {
-      ctx.fillStyle = 'green'
-      ctx.fillRect(this.attackBox.position.x + this.width, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
-    }
-  }
-
-  update() {
-    this.draw()
-    this.attackBox.position.x = this.position.x - this.attackBox.offset.x
-    this.attackBox.position.y = this.position.y
-
-    this.position.y += this.velocity.y
-    this.position.x += this.velocity.x
-    if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-      this.velocity.y = 0
-      this.isGround = true
-    } else {
-      this.velocity.y += gravity
-      this.isGround = false
-    };
-
-    this.move();
-
-
-  }
-
-  move() {
-    this.velocity.x = input.inputGetAxis(this.type) * 2
-  }
-
-  jump() {
-    if (this.isGround) {
-      this.velocity.y = -10;
-    }
-  }
-
-  attack() {
-    this.isAttacking = true
-    setTimeout(() => {
-      this.isAttacking = false
-    }, this.attackSpeed)
-  }
-
-}
-
-class Input {
-  constructor() {
-    this.keys = {}
-  }
-
-  updateKeys(key) {
-    if (/^Key[WAD]/.test(key.code) || /^Arrow[RightLeftDown]/.test(key.code)) {
-      console.log(key);
-      key.preventDefault();
-      this.keys[key.code] = key.type === "keydown";
-    }
-  }
-
-  inputGetAxis(player) {
-    //Horosontal
-    if (player === 'player') {
-      if (this.keys.KeyD && !this.keys.KeyA) {
-        return 1
-      }
-      if (this.keys.KeyA && !this.keys.KeyD) {
-        return -1
-      }
-    }
-    if (player === 'enemy') {
-      if (this.keys.ArrowRight && !this.keys.ArrowLeft) {
-        return 1
-      }
-      if (this.keys.ArrowLeft && !this.keys.ArrowRight) {
-        return -1
-      }
-    }
-
-    return 0
-  }
-
-
-}
+let timerId
 
 const input = new Input()
 
-const player = new Sprite({
+const player = new Player({
   position: {
     x: 0,
     y: 0
@@ -151,7 +38,7 @@ const player = new Sprite({
   type: 'player'
 });
 
-const enemy = new Sprite({
+const enemy = new Player({
   position: {
     x: 500,
     y: 0
@@ -167,8 +54,6 @@ const enemy = new Sprite({
   },
   type: 'enemy'
 });
-
-player.draw();
 
 
 window.addEventListener('keydown', (event) => {
@@ -196,11 +81,15 @@ window.addEventListener('keyup', (event) => {
 
 function update() {
   ctx.fillStyle = 'black'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  background.update();
   player.update();
   enemy.update();
-  CheckAttack(player, enemy)
-  CheckAttack(enemy, player)
+  checkAttack(player, enemy)
+  checkAttack(enemy, player)
+  if (player.health <= 0 || enemy.health <= 0) {
+    determineWinner({ player, enemy })
+  }
 }
 
 function checkCollision(player, enemy) {
@@ -210,7 +99,7 @@ function checkCollision(player, enemy) {
     player.attackBox.position.y <= enemy.position.y + enemy.height)
 }
 
-function CheckAttack() {
+function checkAttack() {
   if (checkCollision(player, enemy) && player.isAttacking) {
     player.isAttacking = false
     enemy.health -= 20
@@ -222,6 +111,32 @@ function CheckAttack() {
     document.querySelector('#playerHealth').style.width = player.health + '%'
   }
 }
+
+function determineWinner({ player, enemy }) {
+  clearTimeout(timerId)
+  document.querySelector('.messange').style.display = 'block'
+  if (player.health === enemy.health) {
+    document.querySelector('#displayText').innerHTML = 'Tie'
+  } else if (player.health > enemy.health) {
+    document.querySelector('#displayText').innerHTML = 'Player 1 Win'
+  } else if (player.health < enemy.health) {
+    document.querySelector('#displayText').innerHTML = 'Player 2 Win'
+  }
+}
+
+function decreaseTimer() {
+  if (timer > 0) {
+    timerId = setTimeout(decreaseTimer, 1000)
+    timer--
+    document.querySelector('#timer').innerHTML = timer
+  }
+  else {
+    determineWinner({ player, enemy })
+  }
+}
+
+decreaseTimer();
+
 
 (function animate() {
   update();
